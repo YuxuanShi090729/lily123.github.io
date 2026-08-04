@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>百合书架 · 优秀百合同人作品索引</title>
+<style>
+  :root {
+    --bg: #faf7fb; --card: #ffffff; --primary: #b06ab3; --primary-dark: #8e4a9e;
+    --accent: #e96d9f; --text: #3a2e3f; --muted: #8a7a90; --border: #ecdff0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: "PingFang SC","Microsoft YaHei",sans-serif; background: var(--bg); color: var(--text); }
+
+  header {
+    background: linear-gradient(135deg, #b06ab3, #e96d9f);
+    color: #fff; padding: 36px 24px; text-align: center;
+  }
+  header h1 { font-size: 30px; letter-spacing: 2px; }
+  header p { margin-top: 8px; opacity: .9; font-size: 14px; }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+
+  /* 搜索与筛选 */
+  .toolbar {
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 18px; margin-top: -30px; box-shadow: 0 6px 24px rgba(176,106,179,.12);
+  }
+  .search-row { display: flex; gap: 10px; }
+  #searchInput {
+    flex: 1; padding: 12px 16px; border: 2px solid var(--border); border-radius: 10px;
+    font-size: 15px; outline: none; transition: border .2s;
+  }
+  #searchInput:focus { border-color: var(--primary); }
+  .btn {
+    padding: 12px 22px; border: none; border-radius: 10px; cursor: pointer;
+    background: var(--primary); color: #fff; font-size: 15px; transition: background .2s;
+  }
+  .btn:hover { background: var(--primary-dark); }
+  .btn.ghost { background: #f3e8f6; color: var(--primary-dark); }
+
+  .filters { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; align-items: center; }
+  .filters select {
+    padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px;
+    background: #fff; color: var(--text); font-size: 14px; cursor: pointer;
+  }
+  .filters label { font-size: 13px; color: var(--muted); }
+
+  .tag-cloud { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag {
+    font-size: 12px; padding: 4px 12px; border-radius: 999px; cursor: pointer;
+    background: #f6ecf8; color: var(--primary-dark); border: 1px solid transparent;
+    transition: all .15s;
+  }
+  .tag:hover { border-color: var(--primary); }
+  .tag.active { background: var(--primary); color: #fff; }
+
+  .stats { margin: 18px 4px 10px; font-size: 13px; color: var(--muted); }
+
+  /* 作品卡片 */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 16px; }
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 18px; display: flex; flex-direction: column; gap: 10px;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(176,106,179,.15); }
+  .card h3 { font-size: 17px; }
+  .card h3 a { color: var(--text); text-decoration: none; }
+  .card h3 a:hover { color: var(--primary-dark); }
+  .meta { font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 14px; }
+  .badges { display: flex; flex-wrap: wrap; gap: 6px; }
+  .badge { font-size: 11px; padding: 3px 9px; border-radius: 6px; background: #fdeef4; color: var(--accent); }
+  .badge.fandom { background: #ede4f7; color: #7c53a8; }
+  .badge.status-done { background: #e3f5e9; color: #2e9e5b; }
+  .badge.status-wip { background: #fff3df; color: #d18a1f; }
+  .summary { font-size: 13.5px; line-height: 1.7; color: #5c4f62;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; }
+  .score { color: var(--accent); font-weight: bold; font-size: 15px; }
+  .heat { font-size: 12px; color: var(--muted); }
+
+  .empty { text-align: center; padding: 60px; color: var(--muted); }
+
+  /* 提交表单弹窗 */
+  dialog {
+    border: none; border-radius: 16px; padding: 26px; width: min(520px, 92vw);
+    box-shadow: 0 20px 60px rgba(0,0,0,.25);
+  }
+  dialog::backdrop { background: rgba(60,30,70,.4); }
+  dialog h2 { margin-bottom: 16px; color: var(--primary-dark); }
+  dialog .form-row { margin-bottom: 12px; }
+  dialog label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+  dialog input, dialog select, dialog textarea {
+    width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px;
+  }
+  dialog .dialog-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
+
+  footer { text-align: center; padding: 30px; font-size: 12px; color: var(--muted); }
+  @media (max-width: 600px) { .search-row { flex-direction: column; } }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🌸 百合书架</h1>
+  <p>检索 · 分类 · 排序 —— 汇集全网优秀百合同人作品的索引站</p>
+</header>
+
+<div class="container">
+  <div class="toolbar">
+    <div class="search-row">
+      <input id="searchInput" type="text" placeholder="搜索标题 / 作者 / 原作 / CP / 标签…">
+      <button class="btn" onclick="render()">搜索</button>
+      <button class="btn ghost" onclick="openDialog()">＋ 提交作品</button>
+    </div>
+    <div class="filters">
+      <label>原作
+        <select id="fandomFilter" onchange="render()"><option value="">全部</option></select>
+      </label>
+      <label>平台
+        <select id="platformFilter" onchange="render()"><option value="">全部</option></select>
+      </label>
+      <label>状态
+        <select id="statusFilter" onchange="render()">
+          <option value="">全部</option><option value="完结">完结</option><option value="连载中">连载中</option>
+        </select>
+      </label>
+      <label>字数
+        <select id="lengthFilter" onchange="render()">
+          <option value="">不限</option>
+          <option value="short">短篇 (&lt;1万)</option>
+          <option value="mid">中篇 (1~10万)</option>
+          <option value="long">长篇 (&gt;10万)</option>
+        </select>
+      </label>
+      <label>排序
+        <select id="sortBy" onchange="render()">
+          <option value="score">按评分</option>
+          <option value="heat">按热度</option>
+          <option value="updated">按更新时间</option>
+          <option value="words">按字数</option>
+        </select>
+      </label>
+    </div>
+    <div class="tag-cloud" id="tagCloud"></div>
+  </div>
+
+  <div class="stats" id="stats"></div>
+  <div class="grid" id="grid"></div>
+</div>
+
+<dialog id="submitDialog">
+  <h2>提交一部作品</h2>
+  <form id="submitForm" method="dialog">
+    <div class="form-row"><label>标题 *</label><input name="title" required></div>
+    <div class="form-row"><label>作者 *</label><input name="author" required></div>
+    <div class="form-row"><label>链接 *</label><input name="url" type="url" required placeholder="https://…"></div>
+    <div class="form-row"><label>原作/圈子 *</label><input name="fandom" required placeholder="如：原创、莉可丽丝、少女歌剧"></div>
+    <div class="form-row"><label>CP</label><input name="cp" placeholder="如：泷千"></div>
+    <div class="form-row"><label>平台</label>
+      <select name="platform"><option>AO3</option><option>LOFTER</option><option>Bilibili专栏</option><option>Pixiv</option><option>SS同人</option><option>其他</option></select>
+    </div>
+    <div class="form-row"><label>状态</label>
+      <select name="status"><option>完结</option><option>连载中</option></select>
+    </div>
+    <div class="form-row"><label>字数（约）</label><input name="words" type="number" min="0" value="10000"></div>
+    <div class="form-row"><label>标签（逗号分隔）</label><input name="tags" placeholder="治愈, HE, 校园"></div>
+    <div class="form-row"><label>简介</label><textarea name="summary" rows="3"></textarea></div>
+    <div class="dialog-actions">
+      <button type="button" class="btn ghost" onclick="document.getElementById('submitDialog').close()">取消</button>
+      <button type="submit" class="btn">提交</button>
+    </div>
+  </form>
+</dialog>
+
+<footer>百合书架 · 本站仅收录作品索引与链接，版权归原作者所有 · 数据保存在浏览器本地</footer>
+
+<script>
+/* ===== 示例数据（演示用虚构条目，请替换为真实收录） ===== */
+const SEED = [
+  { title:"冬日的第一杯可可", author:"示例作者A", url:"#", fandom:"原创", cp:"", platform:"LOFTER",
+    status:"完结", words:8600, tags:["治愈","HE","日常"], score:9.2, heat:3400, updated:"2024-11-02",
+    summary:"咖啡店打工的大学生与常客设计师之间，一段从一杯热可可开始的冬日恋情。" },
+  { title:"舞台之下", author:"示例作者B", url:"#", fandom:"少女歌剧", cp:"华恋×光", platform:"AO3",
+    status:"完结", words:42000, tags:["久别重逢","HE","舞台"], score:9.5, heat:8900, updated:"2024-06-18",
+    summary:"毕业之后各奔东西的两人，在一场纪念公演中再次同台。灯光亮起时，约定也随之苏醒。" },
+  { title:"枪与咖啡因", author:"示例作者C", url:"#", fandom:"莉可丽丝", cp:"泷千", platform:"Bilibili专栏",
+    status:"连载中", words:130000, tags:["战斗","慢热","长篇"], score:9.0, heat:12600, updated:"2025-01-20",
+    summary:"咖啡店日常与暗流涌动的任务交替进行的长篇群像，第三季式的原创剧情走向。" },
+  { title:"海风信笺", author:"示例作者D", url:"#", fandom:"LoveLive!", cp:"果南×鞠莉", platform:"Pixiv",
+    status:"完结", words:15000, tags:["异地","书信体","BE预警"], score:8.7, heat:5200, updated:"2023-09-30",
+    summary:"隔着一整片海洋的十二封信。有些话写下来，比说出口更需要勇气。" },
+  { title:"魔女的契约条款", author:"示例作者E", url:"#", fandom:"魔法少女小圆", cp:"焰圆", platform:"AO3",
+    status:"完结", words:98000, tags:["时间循环","虐","HE"], score:9.6, heat:15800, updated:"2022-12-01",
+    summary:"如果循环有尽头，那一定是你。对时间线的一次温柔缝合。" },
+  { title:"放学后的天文台", author:"示例作者F", url:"#", fandom:"原创", cp:"", platform:"SS同人",
+    status:"连载中", words:36000, tags:["校园","青梅竹马","慢热"], score:8.5, heat:2100, updated:"2025-02-14",
+    summary:"天文社仅剩的两名社员，和一台总是对不准焦的旧望远镜。" },
+];
+
+/* ===== 数据层：localStorage 持久化 ===== */
+const KEY = "yuri-index-data";
+let works = JSON.parse(localStorage.getItem(KEY) || "null") || SEED;
+function save() { localStorage.setItem(KEY, JSON.stringify(works)); }
+
+let activeTag = "";
+
+/* ===== 初始化筛选器选项 ===== */
+function initFilters() {
+  const fandoms = [...new Set(works.map(w => w.fandom))].sort();
+  const platforms = [...new Set(works.map(w => w.platform))].sort();
+  fillSelect("fandomFilter", fandoms);
+  fillSelect("platformFilter", platforms);
+  const tags = [...new Set(works.flatMap(w => w.tags))];
+  document.getElementById("tagCloud").innerHTML = tags.map(t =>
+    `<span class="tag ${t===activeTag?'active':''}" onclick="toggleTag('${t}')">${t}</span>`).join("");
+}
+function fillSelect(id, items) {
+  const sel = document.getElementById(id);
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">全部</option>' + items.map(i => `<option>${i}</option>`).join("");
+  sel.value = cur;
+}
+function toggleTag(t) { activeTag = (activeTag === t ? "" : t); initFilters(); render(); }
+
+/* ===== 检索 + 筛选 + 排序 ===== */
+function getFiltered() {
+  const q = document.getElementById("searchInput").value.trim().toLowerCase();
+  const f = document.getElementById("fandomFilter").value;
+  const p = document.getElementById("platformFilter").value;
+  const s = document.getElementById("statusFilter").value;
+  const len = document.getElementById("lengthFilter").value;
+  const sortBy = document.getElementById("sortBy").value;
+
+  let list = works.filter(w => {
+    if (q && ![w.title, w.author, w.fandom, w.cp, ...w.tags].join(" ").toLowerCase().includes(q)) return false;
+    if (f && w.fandom !== f) return false;
+    if (p && w.platform !== p) return false;
+    if (s && w.status !== s) return false;
+    if (activeTag && !w.tags.includes(activeTag)) return false;
+    if (len === "short" && w.words >= 10000) return false;
+    if (len === "mid" && (w.words < 10000 || w.words > 100000)) return false;
+    if (len === "long" && w.words <= 100000) return false;
+    return true;
+  });
+
+  const cmp = {
+    score:   (a,b) => b.score - a.score,
+    heat:    (a,b) => b.heat - a.heat,
+    updated: (a,b) => b.updated.localeCompare(a.updated),
+    words:   (a,b) => b.words - a.words,
+  }[sortBy];
+  return list.sort(cmp);
+}
+
+/* ===== 渲染 ===== */
+function fmtWords(n) { return n >= 10000 ? (n/10000).toFixed(1).replace(/\.0$/,"") + "万字" : n + "字"; }
+
+function render() {
+  const list = getFiltered();
+  document.getElementById("stats").textContent = `共找到 ${list.length} 部作品`;
+  const grid = document.getElementById("grid");
+  if (!list.length) { grid.innerHTML = `<div class="empty">🌷 没有匹配的作品，换个条件试试？</div>`; return; }
+  grid.innerHTML = list.map(w => `
+    <div class="card">
+      <h3><a href="${w.url}" target="_blank" rel="noopener">${esc(w.title)}</a></h3>
+      <div class="meta">
+        <span>✍️ ${esc(w.author)}</span><span>📚 ${fmtWords(w.words)}</span><span>🕒 ${w.updated}</span>
+      </div>
+      <div class="badges">
+        <span class="badge fandom">${esc(w.fandom)}</span>
+        ${w.cp ? `<span class="badge">${esc(w.cp)}</span>` : ""}
+        <span class="badge">${esc(w.platform)}</span>
+        <span class="badge ${w.status === "完结" ? "status-done" : "status-wip"}">${w.status}</span>
+        ${w.tags.map(t => `<span class="badge">${esc(t)}</span>`).join("")}
+      </div>
+      <p class="summary">${esc(w.summary || "暂无简介")}</p>
+      <div class="card-footer">
+        <span class="score">★ ${w.score.toFixed(1)}</span>
+        <span class="heat">🔥 热度 ${w.heat.toLocaleString()}</span>
+      </div>
+    </div>`).join("");
+}
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c])); }
+
+/* ===== 提交表单 ===== */
+function openDialog() { document.getElementById("submitDialog").showModal(); }
+document.getElementById("submitForm").addEventListener("submit", e => {
+  const fd = new FormData(e.target);
+  works.unshift({
+    title: fd.get("title"), author: fd.get("author"), url: fd.get("url"),
+    fandom: fd.get("fandom"), cp: fd.get("cp") || "", platform: fd.get("platform"),
+    status: fd.get("status"), words: Number(fd.get("words")) || 0,
+    tags: (fd.get("tags") || "").split(/[,，]/).map(t => t.trim()).filter(Boolean),
+    summary: fd.get("summary") || "", score: 8.0, heat: 0,
+    updated: new Date().toISOString().slice(0, 10),
+  });
+  save(); e.target.reset(); initFilters(); render();
+});
+
+document.getElementById("searchInput").addEventListener("input", () => render());
+
+initFilters();
+render();
+</script>
+</body>
+</html>
